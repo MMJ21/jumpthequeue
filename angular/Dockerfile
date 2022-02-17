@@ -1,10 +1,13 @@
-#stage 1
-FROM node:latest as node
-WORKDIR /jumpthequeue
+#Stage 1: Build Node App
+FROM node:16.3.0-alpine as node
+WORKDIR /app
 COPY . .
 RUN set NODE_OPTIONS=--openssl-legacy-provider
 RUN npm install --legacy-peer-deps 
 RUN npm run build --prod
-#stage 2
+
+#Stage 2: Deploy in NGINX
 FROM nginx:alpine
-COPY --from=node /app/dist/jumpthequeue /usr/share/nginx/html
+WORKDIR /usr/share/nginx/html
+COPY --from=node /app/dist/angular .
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
