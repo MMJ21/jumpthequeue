@@ -19,11 +19,12 @@ pipeline {
         }
         stage('Sonarqube') {
             environment {
+                maven = tool 'Maven'
                 scannerHome = tool 'SonarQube'
             }
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh "mvn clean package && ${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=develop -Dsonar.sources=. -Dsonar.exclusions=*.java"
+                    sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=develop"
                 }
             }
         }
