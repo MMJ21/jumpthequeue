@@ -23,7 +23,8 @@ pipeline {
             }
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=develop -Dsonar.sources=."
+                    sh "mvn clean package &&
+                    ${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=develop -Dsonar.sources=. -Dsonar.exclusions=*.java"
                 }
             }
         }
