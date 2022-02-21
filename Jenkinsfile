@@ -24,7 +24,9 @@ pipeline {
             }
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=develop"
+                    withMaven('Maven') {
+                        sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=develop"
+                    }
                 }
             }
         }
