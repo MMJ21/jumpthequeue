@@ -18,7 +18,9 @@ pipeline {
             }
         }
         stage('Maven SonarQube') {
-            def mvn = tool 'Maven';
+            enviroment {
+                def mvn = tool 'Maven';
+            }
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=develop"
@@ -26,7 +28,9 @@ pipeline {
             }
         }
         stage('Angular SonarQube') {
-            def scannerHome = tool 'SonarQube';
+            enviroment {
+                def scannerHome = tool 'SonarQube';
+            }
             steps {                 
                 withSonarQubeEnv('SonarQube') {
                     sh "${scannerHome}/bin/sonar-scanner"
