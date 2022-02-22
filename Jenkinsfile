@@ -18,17 +18,17 @@ pipeline {
             }
         }
         stage('Maven SonarQube') {
+            def mvn = tool 'Maven';
             steps {
-                def mvn = tool 'Maven';
-                withSonarQubeEnv() {
+                withSonarQubeEnv('SonarQube') {
                     sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=develop"
                 }
             }
         }
         stage('Angular SonarQube') {
-            steps { 
-                def scannerHome = tool 'SonarQube';
-                withSonarQubeEnv() {
+            def scannerHome = tool 'SonarQube';
+            steps {                 
+                withSonarQubeEnv('SonarQube') {
                     sh "${scannerHome}/bin/sonar-scanner"
                 }
             }
