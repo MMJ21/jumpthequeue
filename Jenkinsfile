@@ -13,7 +13,7 @@ pipeline {
         }
         stage('Build') {
             steps {
-                dir("/var/lib/jenkins/workspace/jumpthequeue/jumpthequeue") {
+                dir("/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj") {
                     sh 'mvn clean package'
                 }
             }
