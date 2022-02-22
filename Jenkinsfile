@@ -19,12 +19,11 @@ pipeline {
             }
         }
         stage('Maven SonarQube') {
-            environment {
-                mvn = tool 'Maven';
-            }
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=develop"
+                    dir("/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj") {
+                        sh "mvn clean verify sonar:sonar -Dsonar.projectKey=develop"
+                    }
                 }
             }
         }
