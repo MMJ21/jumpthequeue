@@ -17,6 +17,9 @@ pipeline {
                 echo 'Deploying...'
             }
         }
+        stage('SCM') {
+            checkout scm
+        }
         stage('Maven SonarQube') {
             environment {
                 mvn = tool 'Maven';
