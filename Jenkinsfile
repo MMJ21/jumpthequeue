@@ -33,7 +33,9 @@ pipeline {
             }
             steps {                 
                 withSonarQubeEnv('SonarQube') {
-                    sh "${scannerHome}/bin/sonar-scanner"
+                    dir("/var/jenkins_home/workspace/jumpthequeue_development/angular") {
+                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=develop"
+                    }
                 }
             }
         }
