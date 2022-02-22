@@ -18,7 +18,9 @@ pipeline {
             }
         }
         stage('SCM') {
-            checkout scm
+            steps{
+                checkout scm
+            }
         }
         stage('Maven SonarQube') {
             environment {
