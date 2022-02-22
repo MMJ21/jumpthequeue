@@ -17,17 +17,16 @@ pipeline {
                 echo 'Deploying...'
             }
         }
-        stage('Sonarqube') {
-            environment {
-                maven = tool 'Maven'
-                scannerHome = tool 'SonarQube'
+        stage('Maven SonarQube') {
+            def mvn = tool 'Maven'
+            withSonarQubeEnv() {
+                sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=develop"
             }
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    withMaven('Maven') {
-                        sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=develop"
-                    }
-                }
+        }
+        stage('Angular SonarQube') {
+            def scannerHome = tool 'SonarQube'
+            withSonarQubeEnv() {
+                sh "${scannerHome}/bin/sonar-scanner"
             }
         }
         
