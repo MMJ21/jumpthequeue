@@ -18,15 +18,19 @@ pipeline {
             }
         }
         stage('Maven SonarQube') {
-            def mvn = tool 'Maven';
-            withSonarQubeEnv() {
-                sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=develop"
+            steps {
+                def mvn = tool 'Maven';
+                withSonarQubeEnv() {
+                    sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=develop"
+                }
             }
         }
         stage('Angular SonarQube') {
-            def scannerHome = tool 'SonarQube';
-            withSonarQubeEnv() {
-                sh "${scannerHome}/bin/sonar-scanner"
+            steps { 
+                def scannerHome = tool 'SonarQube';
+                withSonarQubeEnv() {
+                    sh "${scannerHome}/bin/sonar-scanner"
+                }
             }
         }
         
