@@ -18,8 +18,8 @@ pipeline {
             }
         }
         stage('Maven SonarQube') {
-            enviroment {
-                def mvn = tool 'Maven';
+            environment {
+                mvn = tool 'Maven';
             }
             steps {
                 withSonarQubeEnv('SonarQube') {
@@ -28,8 +28,8 @@ pipeline {
             }
         }
         stage('Angular SonarQube') {
-            enviroment {
-                def scannerHome = tool 'SonarQube';
+            environment {
+                scannerHome = tool 'SonarQube';
             }
             steps {                 
                 withSonarQubeEnv('SonarQube') {
