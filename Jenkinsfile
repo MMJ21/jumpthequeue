@@ -1,8 +1,7 @@
 pipeline {
     agent any
     tools {
-        mvn 'Maven'
-        scannerHome 'SonarQube'
+        maven 'Maven'
     }
 
     stages {
@@ -20,15 +19,19 @@ pipeline {
             }
         }
         stage('Maven SonarQube') {
+            environment {
+                mvn = tool 'Maven';
+            }
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    dir("/var/lib/jenkins/workspace/jumpthequeue/jumpthequeue") {
-                        sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=develop"
-                    }
+                    sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=develop"
                 }
             }
         }
         stage('Angular SonarQube') {
+            environment {
+                scannerHome = tool 'SonarQube';
+            }
             steps {                 
                 withSonarQubeEnv('SonarQube') {
                     sh "${scannerHome}/bin/sonar-scanner"
