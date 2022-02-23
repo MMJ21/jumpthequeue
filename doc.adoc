@@ -1,0 +1,87 @@
+Onboarding Capgemini
+====================
+:Author: Marcos Martínez Játiva
+:Email: marcos.martinez-jativa-external@capgemini.com
+:Date: 23-02-2022
+:Revision: 1.0
+
+Table of contents
+-----------------
+xref:anchor-1[Abstract] +
+xref:anchor-2[Introducción a JumpTheQueue] +
+- xref:anchor-3[JumpTheQueue Backend: Spring Boot] +
+- xref:anchor-4[JumpTheQueue Frontend: Nginx & Angular] +
+xref:anchor-5[Docker: introducción] +
+Dockerfile: crear una imagen con un Dockerfile +
+Docker-compose: desplegando JumpTheQueue +
+CI/CD con Jenkins +
+SonarQube +
+Crear un entorno de CI/CD utilizando GitHub, Jenkins y SonarQube +
+Nexus +
+xref:anchor-99[Bibliografía]
+
+[[anchor-1]]
+Abstract
+~~~~~~~~
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget orci ut dui laoreet facilisis eget in leo. Nulla facilisi. Suspendisse fermentum nunc eu nibh commodo sodales. Fusce porta malesuada nisl sed tristique. Aenean vehicula mauris id elementum pharetra. Cras imperdiet porttitor cursus. Suspendisse id dolor blandit lorem egestas efficitur. Proin dui felis, malesuada id arcu sit amet, pulvinar semper mauris. Vestibulum non vulputate erat. Nulla ut viverra tortor. Etiam lobortis odio non nunc vestibulum ultricies. Morbi semper ligula ac blandit ultricies. Mauris rutrum commodo diam, quis auctor velit condimentum vel. Phasellus suscipit tellus quis dui gravida accumsan.
+
+
+[[anchor-2]]
+Introducción a JumpTheQueue
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+JumpTheQueue es una aplicación web diseñada como introducción al desarrollo bajo el entorno de link:https://devonfw.com/website/pages/welcome/welcome.html[*devonfw*]. A grandes rasgos, la aplicación aborda el problema de tener que esperar a acceder a un espacio donde se celebre un evento en una cola. Esta asigna un número a cada visitante un "número de cola" para que no se acumule tanta gente en la entrada, y poder acudir a una hora determinada según tu número de cola (acorde con la filosofía JIIT). 
+
+Puedes encontrar la especificación de requisitos de la aplicación en este enlace: https://github.com/devonfw/jump-the-queue/wiki/jump-the-queue-design .
+
+
+[[anchor-3]]
+JumpTheQueue Backend: Spring Boot
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+El backend se estructura según la arquitectura *devon4j* basada en componentes, que consiste en tres capas: 
+
+  - Capa de *Servicios*: expone la API REST para intercambiar información con las aplicaciones cliente.
+  - Capa de *Lógica*: se encarga de la lógica de negocio de la aplicación.
+  - Capa de *Acceso a Datos*: se conecta y se comunica con la base de datos.
+
+Además, incorpora en su ciclo de desarrollo funcionalidades como seguridad, _logging_ y manejo de excepciones.
+
+En cuanto al stack tecnológico, el backend de JumpTheQueue usa *Spring Boot*, basado en el framework Spring de Java, que nos permite realizar aplicaciones Web con configuraciones iniciales mínimas. En lugar de tener que desplegar los archivos WAR, estas aplicaciones simplemente se ejecutan directamente mediante Java, al tener el contenedor de servlets embebido (generalmente Apache Tomcat, se pueden usar otros como Jetty o Undertow).
+
+A parte de Spring Boot, otras herramientas notables utilizadas son *Maven* como herramienta de gestión de proyectos, *Jakarta Persistance*, *QueryDsl* y *H2* para la persistencia y *Apache CXF* como framework para servicios Web.
+
+Puedes encontrar más información sobre el desarrollo del backend de JumpTheQueue en la wiki de devonfw: https://github.com/devonfw/jump-the-queue/wiki/devon4j-overview
+
+
+[[anchor-4]]
+JumpTheQueue Frontend: Nginx & Angular
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Para el frontend, conviene hablar primero del stack tecnológico para comprender la arquitectura. Para este proyecto usamos:
+
+ - *Nginx* como servidor web/proxy inverso. Ofrece características importantes como balanceo de carga, sockets, manejo de archivos estáticos, archivos de índice, autoindexación, TLS/SSL, soporte para IPv6, entre otros.
+ - *Angular* como framework principal de desarrollo. Mantenido por Google y desarrollado en TypeScript, este framework usa una estructura basada en componentes con propiedades, las cuales son usadas para hacer el _binding_ de los datos. 
+ - *Yarn* como herramienta de gestión de proyectos.
+ - Librerías de utilidades y componentes como *Angular Material* y *Teradata Covalent*
+
+Tanto Nginx como Angular delimitan una estructura específica para trabajar, por lo que para este proyecto, la arquitectura escogida es la estándar de Angular. Puedes encontrar más información en la propia página de Angular: https://angular.io/guide/architecture .
+
+Más información sobre el desarrollo del frontend de JumpTheQueue en: https://github.com/devonfw/jump-the-queue/wiki/devon4ng-introduction .
+
+[[anchor-5]]
+Docker: introducción
+~~~~~~~~~~~~~~~~~~~~
+*Docker* es una un conjunto de herramientas de plataforma como servicio (Platform as a service, PaaS) que utiliza virtualización a nivel de sistema operativo (SO) para entregar software en paquetes llamados _contenedores_. 
+
+Docker se compone de tres elementos fundamentales:
+
+ - Contenedores: contienen todo lo necesario para que una aplicación pueda funcionar independientemente.
+ - Imágenes: se puede entender una imagen docker como un SO con aplicaciones instaladas, sobre la cual se pueden añadir más ap
+
+[[anchor-99]]
+Bibliografía
+~~~~~~~~~~~~
+ - Página principal de DevonFW: https://devonfw.com
+ - Wiki de JumpTheQueue: https://github.com/devonfw/jump-the-queue/wiki
+ - Página de Spring Boot: https://spring.io/projects/spring-boot
+ - ¿Qué es Nginx y cómo funciona?: https://kinsta.com/es/base-de-conocimiento/que-es-nginx/
+ - Página principal de Angular: https://angular.io/
+ - Artículo de Wikipedia sobre Docker, a fecha de 23 de febrero de 2022: https://en.wikipedia.org/wiki/Docker_(software)
