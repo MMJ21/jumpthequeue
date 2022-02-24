@@ -27,13 +27,22 @@ pipeline {
                     sh 'mvn clean package'
                 }
             }
-        }        
+        }  
+        stage('Maven SonarQube') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    dir("/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj") {
+                        sh "mvn verify sonar:sonar -Dsonar.login=0c9c089575d7a724b74b6a6bdf69e66062dba06d"
+                    }
+                }
+            }
+        }      
         stage('Publish to Nexus Repository Manager') {
             steps {
                 dir("/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj") {
                     script {
                     pom = readMavenPom file: "pom.xml";
-                    filesByGlob = findFiles(glob: "target/*.${pom.packaging}");
+                    filesByGlob = findFiles(glob: "server/target/*.${pom.packaging}");
                     echo "${filesByGlob[0].name} ${filesByGlob[0].path} ${filesByGlob[0].directory} ${filesByGlob[0].length} ${filesByGlob[0].lastModified}"
                     artifactPath = filesByGlob[0].path;
                     artifactExists = fileExists artifactPath;
@@ -62,15 +71,6 @@ pipeline {
                         error "*** File: ${artifactPath}, could not be found";
                     }
                 }
-                }
-            }
-        }
-        stage('Maven SonarQube') {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    dir("/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj") {
-                        sh "mvn verify sonar:sonar -Dsonar.login=0c9c089575d7a724b74b6a6bdf69e66062dba06d"
-                    }
                 }
             }
         }
