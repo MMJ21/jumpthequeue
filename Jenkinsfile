@@ -27,16 +27,7 @@ pipeline {
                     sh 'mvn clean package'
                 }
             }
-        }
-        stage('Maven SonarQube') {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    dir("/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj") {
-                        sh "mvn verify sonar:sonar -Dsonar.login=0c9c089575d7a724b74b6a6bdf69e66062dba06d"
-                    }
-                }
-            }
-        }
+        }        
         stage('Publish to Nexus Repository Manager') {
             steps {
                 dir("/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj") {
@@ -71,6 +62,15 @@ pipeline {
                         error "*** File: ${artifactPath}, could not be found";
                     }
                 }
+                }
+            }
+        }
+        stage('Maven SonarQube') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    dir("/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj") {
+                        sh "mvn verify sonar:sonar -Dsonar.login=0c9c089575d7a724b74b6a6bdf69e66062dba06d"
+                    }
                 }
             }
         }
