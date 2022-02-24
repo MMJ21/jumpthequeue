@@ -39,10 +39,10 @@ pipeline {
         }      
         stage('Publish to Nexus Repository Manager') {
             steps {
-                dir("/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj") {
+                dir("/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj/server") {
                     script {
                     pom = readMavenPom file: "pom.xml";
-                    filesByGlob = findFiles(glob: "server/target/*.${pom.packaging}");
+                    filesByGlob = findFiles(glob: "target/*.${pom.packaging}");
                     echo "${filesByGlob[0].name} ${filesByGlob[0].path} ${filesByGlob[0].directory} ${filesByGlob[0].length} ${filesByGlob[0].lastModified}"
                     artifactPath = filesByGlob[0].path;
                     artifactExists = fileExists artifactPath;
