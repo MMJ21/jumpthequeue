@@ -4,6 +4,8 @@ Onboarding Capgemini
 :Email: marcos.martinez-jativa-external@capgemini.com
 :Date: 23-02-2022
 :Revision: 1.0
+:source-highlighter: coderay
+:imagesdir: ./assets
 
 Table of contents
 -----------------
@@ -12,12 +14,10 @@ xref:anchor-2[Introducción a JumpTheQueue] +
 - xref:anchor-3[JumpTheQueue Backend: Spring Boot] +
 - xref:anchor-4[JumpTheQueue Frontend: Nginx & Angular] +
 xref:anchor-5[Docker: introducción] +
-Dockerfile: crear una imagen con un Dockerfile +
-Docker-compose: desplegando JumpTheQueue +
-CI/CD con Jenkins +
-SonarQube +
-Crear un entorno de CI/CD utilizando GitHub, Jenkins y SonarQube +
-Nexus +
+xref:anchor-6[Dockerfile: crear una imagen con un Dockerfile] +
+xref:anchor-7[Docker-compose: desplegando JumpTheQueue] +
+xref:anchor-8[Crear un entorno de CI/CD utilizando Jenkins, SonarQube y GitHub] +
+xref:anchor-12[Nexus] +
 xref:anchor-99[Bibliografía]
 
 [[anchor-1]]
@@ -73,8 +73,135 @@ Docker: introducción
 
 Docker se compone de tres elementos fundamentales:
 
- - Contenedores: contienen todo lo necesario para que una aplicación pueda funcionar independientemente.
- - Imágenes: se puede entender una imagen docker como un SO con aplicaciones instaladas, sobre la cual se pueden añadir más ap
+ - *Contenedores*: contienen todo lo necesario para que una aplicación pueda funcionar independientemente.
+ - *Imágenes*: se puede entender una imagen docker como un SO con aplicaciones instaladas, sobre la cual se pueden añadir más aplicaciones que se vayan a utilizar en otros equipos donde se vaya a utilizar la imagen.
+ - *Repositorios*: contienen imágenes creadas por los usuarios y puestas a disposición del público. Estos permiten desarrollar o desplegar aplicaciones de forma simple y rápida en base a plantillas.
+
+Al utilizar Windows, tenemos a nuestra disposición la aplicación *Docker Desktop*, la cual proporciona una interfaz gráfica para el manejo de imágenes y contenedores de una forma limpia y cómoda. Se puede descargar en el siguiente enlace: https://www.docker.com/products/docker-desktop.
+
+[[anchor-6]]
+Dockerfile: crear una imagen con un Dockerfile
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Un *Dockerfile* es un archivo que contiene todos los comandos que un usuario utilizaría en consola para construir una imagen. Este Dockerfile se puede consumir utilizando el comando *docker build*.
+
+Por ejemplo, si quisiésemos construir una imagen para el backend de nuestro JumpTheQueue, podríamos hacer un Dockerfile similar al siguiente:
+
+[source, docker]
+----
+#Stage 1: Build Maven Application
+FROM maven:3.8.4-jdk-11 AS build
+WORKDIR /home/app
+COPY . .
+RUN mvn clean package
+
+#Stage 2: Deploy Maven App
+FROM openjdk:8-jdk-alpine
+COPY --from=build home/app/server/target/jtqj-server-bootified.war jtq.war
+ENTRYPOINT ["java","-jar","/jtq.war"]
+----
+
+Como podemos observar, este Dockerfile tiene dos fases o 'Stages': una para construir el proyecto Maven y otra para ejecutarlo.
+
+Centrándonos en el 'Stage 1', podemos apreciar las siguientes directivas:
+
+  - *FROM* maven:3.8.4-jdk.11 -> selecciona del repositorio público de imágenes de Maven esta versión en específico.
+  - *AS* build -> nombra la imagen para su uso posterior. Veremos su uso en el 'Stage 2'.
+  - *WORKDIR* /home/app -> selecciona como directorio de trabajo en la imagen '/home/app' .
+  - *COPY* . . -> copia el contenido del directorio actual donde se está ejecutando el Dockerfile (normalmente, la raíz del proyecto) a la raíz del directorio de trabajo de la imagen (en nuestro caso '/home/app', como hemos especificado en la anterior directiva).
+  - *RUN* mvn clean package -> ejecuta en el directorio de trabajo el comando mvn clean package, el cual construye la aplicación.
+
+Si nos vamos al 'Stage 2', podemos apreciar directivas similares:
+
+ - *FROM* openjdk:8-jdk-alpine -> igual que en el stage anterior, seleccionamos esta imagen en específico del repositorio de OpenJDK.
+ - *COPY* --from=build home/app/server/target/jtqj-server-bootified.war jtq.war -> copia de la imagen anterior el .war seleccionado a esta nueva imagen. Como podemos observar, con la flag '--from' podemos utilizar imagenes creadas anteriormente en el Dockerfile y usar sus archivos en cualquier momento de la build.
+ - *ENTRYPOINT* ["java", "-jar", "/jtq.war"] -> señala el comando de inicialización que se ejecutará cuando se lance un contenedor con esta imagen. Esto quiere decir que cuando creemos un contenedor que contenga esta imagen, lo primero que hará será lanzar el comando *java -jar /jtq.war*, el cual lanza la aplicación.
+
+Para construir la imagen, simplemente ejecutamos el siguiente comando desde la raíz de nuestro proyecto:
+[source, sh]
+----
+docker build -t jtq-backend .
+----
+
+La flag '-t' nos permite nombrar la imagen como deseemos.
+
+Para lanzar la imagen a un contenedor, ejecutamos el comando *docker run* tal como:
+[source, sh]
+----
+docker run -p 8081:8081 jtq-backend
+----
+
+Esto lanzará un contenedor que portará la imagen jtq-backend. Con la flag '-p', vinculamos el puerto 8081 de nuestro contenedor con el puerto 8081 de nuestro 'localhost'. Si quisiesemos escuchar en otro puerto en nuestro 'localhost', podríamos cambiar el primero 8081 por cualquier otro puerto. El segundo únicamente habría que cambiarlo si cambiásemos el puerto en el que se inicia la aplicación.
+
+Para el frontend, usamos un Dockerfile similar al del backend, pero cambiando las imagenes por las requeridas de Node y Nginx, y los comandos como toquen:
+[source, docker]
+----
+#Stage 1: Build Node App
+FROM node:16.3.0-alpine as node
+WORKDIR /app
+COPY . .
+RUN set NODE_OPTIONS=--openssl-legacy-provider
+RUN npm install --legacy-peer-deps 
+RUN npm run build --prod
+
+#Stage 2: Deploy in NGINX
+FROM nginx:alpine
+WORKDIR /usr/share/nginx/html
+COPY --from=node /app/dist/angular .
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
+----
+
+Para construir y lanzar la imagen, igualmente similar:
+[source, sh]
+----
+docker build -t jtq-frontend . 
+
+docker run -p 4200:80 jtq-frontend
+----
+
+[[anchor-7]]
+Docker-compose: desplegando JumpTheQueue
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Docker Compose es una herramienta para definir y lanzar aplicaciones Docker multicontenedor. Para ello, se define un archivo YAML para configurar los servicios de la aplicación. Después, con un único comando, se crean y lanzan todos los servicios desde tu configuración.
+
+Usar Compose es un proceso de tres pasos:
+
+. Definir el entorno de la aplicación con Dockerfiles.
+. Definir los servicios en el archivo *docker-compose.yml* .
+. Ejecutar el comando 'docker compose up'.
+
+Para nuestro ejemplo con JumpTheQueue, definir los servicios es muy sencillo:
+[source, yaml]
+----
+version: '3'
+
+services:
+  backend:
+    build: './java/jtqj'
+    ports: 
+      - '8081:8081'
+  frontend:
+    build: './angular'
+    ports: 
+      - '4200:80'
+----
+
+Como podemos apreciar, lo único que resaltamos en este caso es el directorio desde donde queremos que se construya cada servicio (que debería apuntar a la raíz de cada proyecto), y los puertos que queremos publicar.
+Una vez tenemos este código guardado en el docker-compose.yml, simplemente ejecutamos el comando:
+[source, sh]
+----
+docker compose up
+----
+
+Y esto levantará ambos contenedores a la vez, desplegando así la aplicación entera en un paso. 
+
+Si observamos en Docker Desktop, nos aparecerá un grupo con ambos contenedores.
+[#img-dockerCompose]
+.Contenedores de JumpTheQueue levantados con Docker Compose
+image::dockerDesktopDockerCompose.png[]
+
+[[anchor-8]]
+Crear un entorno de CI/CD utilizando Jenkins, SonarQube y GitHub
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 [[anchor-99]]
 Bibliografía
@@ -85,3 +212,7 @@ Bibliografía
  - ¿Qué es Nginx y cómo funciona?: https://kinsta.com/es/base-de-conocimiento/que-es-nginx/
  - Página principal de Angular: https://angular.io/
  - Artículo de Wikipedia sobre Docker, a fecha de 23 de febrero de 2022: https://en.wikipedia.org/wiki/Docker_(software)
+ - Docker, Qué es y sus principales características.: https://openwebinars.net/blog/docker-que-es-sus-principales-caracteristicas/
+ - Dockerfile reference: https://docs.docker.com/engine/reference/builder/
+ - Common Directives in Dockerfiles: https://subscription.packtpub.com/book/cloud_and_networking/9781838983444/2/ch02lvl1sec12/common-directives-in-dockerfiles
+ - Overview of Docker Compose: https://docs.docker.com/compose/
