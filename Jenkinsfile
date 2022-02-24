@@ -24,7 +24,7 @@ pipeline {
         stage('Build') {
             steps {
                 dir("/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj") {
-                    sh 'mvn clean install'
+                    sh 'mvn clean package'
                 }
             }
         }
@@ -32,7 +32,7 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     dir("/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj") {
-                        sh "mvn clean verify sonar:sonar -Dsonar.login=0c9c089575d7a724b74b6a6bdf69e66062dba06d"
+                        sh "mvn verify sonar:sonar -Dsonar.login=0c9c089575d7a724b74b6a6bdf69e66062dba06d"
                     }
                 }
             }
