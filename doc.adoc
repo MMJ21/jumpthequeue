@@ -1,42 +1,41 @@
 Onboarding Capgemini
 ====================
-:Author: Marcos Martínez Játiva
-:Email: marcos.martinez-jativa-external@capgemini.com
-:Date: 23-02-2022
-:Revision: 1.0
+Marcos Martínez Játiva <marcos.martinez-jativa-external@capgemini.com>
+:revdate: 24-02-2022
+:revnumber: 1.0
 :source-highlighter: coderay
 :imagesdir: ./assets
 
 Table of contents
 -----------------
-xref:anchor-1[Abstract] +
-xref:anchor-2[Introducción a JumpTheQueue] +
-- xref:anchor-3[JumpTheQueue Backend: Spring Boot] +
-- xref:anchor-4[JumpTheQueue Frontend: Nginx & Angular] +
-xref:anchor-5[Docker: introducción] +
-xref:anchor-6[Dockerfile: crear una imagen con un Dockerfile] +
-xref:anchor-7[Docker-compose: desplegando JumpTheQueue] +
-xref:anchor-8[Crear un entorno de CI/CD utilizando Jenkins, SonarQube y GitHub] +
-xref:anchor-12[Nexus] +
-xref:anchor-99[Bibliografía]
+xref:anchor-1[1. Abstract] +
+xref:anchor-2[2. Introducción a JumpTheQueue] +
+- xref:anchor-3[2.1 JumpTheQueue Backend: Spring Boot] +
+- xref:anchor-4[2.2 JumpTheQueue Frontend: Nginx & Angular] +
+xref:anchor-5[3. Docker: introducción] +
+xref:anchor-6[4. Dockerfile: crear una imagen con un Dockerfile] +
+xref:anchor-7[5. Docker-compose: desplegando JumpTheQueue] +
+xref:anchor-8[6. Crear un entorno de CI/CD utilizando Jenkins, SonarQube y GitHub] +
+xref:anchor-12[7. Nexus] +
+xref:anchor-99[8. Bibliografía]
 
 [[anchor-1]]
-Abstract
-~~~~~~~~
+1. Abstract
+~~~~~~~~~~~~
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget orci ut dui laoreet facilisis eget in leo. Nulla facilisi. Suspendisse fermentum nunc eu nibh commodo sodales. Fusce porta malesuada nisl sed tristique. Aenean vehicula mauris id elementum pharetra. Cras imperdiet porttitor cursus. Suspendisse id dolor blandit lorem egestas efficitur. Proin dui felis, malesuada id arcu sit amet, pulvinar semper mauris. Vestibulum non vulputate erat. Nulla ut viverra tortor. Etiam lobortis odio non nunc vestibulum ultricies. Morbi semper ligula ac blandit ultricies. Mauris rutrum commodo diam, quis auctor velit condimentum vel. Phasellus suscipit tellus quis dui gravida accumsan.
 
 
 [[anchor-2]]
-Introducción a JumpTheQueue
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2. Introducción a JumpTheQueue
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 JumpTheQueue es una aplicación web diseñada como introducción al desarrollo bajo el entorno de link:https://devonfw.com/website/pages/welcome/welcome.html[*devonfw*]. A grandes rasgos, la aplicación aborda el problema de tener que esperar a acceder a un espacio donde se celebre un evento en una cola. Esta asigna un número a cada visitante un "número de cola" para que no se acumule tanta gente en la entrada, y poder acudir a una hora determinada según tu número de cola (acorde con la filosofía JIIT). 
 
 Puedes encontrar la especificación de requisitos de la aplicación en este enlace: https://github.com/devonfw/jump-the-queue/wiki/jump-the-queue-design .
 
 
 [[anchor-3]]
-JumpTheQueue Backend: Spring Boot
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2.1 JumpTheQueue Backend: Spring Boot
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 El backend se estructura según la arquitectura *devon4j* basada en componentes, que consiste en tres capas: 
 
   - Capa de *Servicios*: expone la API REST para intercambiar información con las aplicaciones cliente.
@@ -53,8 +52,8 @@ Puedes encontrar más información sobre el desarrollo del backend de JumpTheQue
 
 
 [[anchor-4]]
-JumpTheQueue Frontend: Nginx & Angular
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2.2 JumpTheQueue Frontend: Nginx & Angular
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Para el frontend, conviene hablar primero del stack tecnológico para comprender la arquitectura. Para este proyecto usamos:
 
  - *Nginx* como servidor web/proxy inverso. Ofrece características importantes como balanceo de carga, sockets, manejo de archivos estáticos, archivos de índice, autoindexación, TLS/SSL, soporte para IPv6, entre otros.
@@ -67,8 +66,8 @@ Tanto Nginx como Angular delimitan una estructura específica para trabajar, por
 Más información sobre el desarrollo del frontend de JumpTheQueue en: https://github.com/devonfw/jump-the-queue/wiki/devon4ng-introduction .
 
 [[anchor-5]]
-Docker: introducción
-~~~~~~~~~~~~~~~~~~~~
+3. Docker: introducción
+~~~~~~~~~~~~~~~~~~~~~~~
 *Docker* es una un conjunto de herramientas de plataforma como servicio (Platform as a service, PaaS) que utiliza virtualización a nivel de sistema operativo (SO) para entregar software en paquetes llamados _contenedores_. 
 
 Docker se compone de tres elementos fundamentales:
@@ -80,8 +79,8 @@ Docker se compone de tres elementos fundamentales:
 Al utilizar Windows, tenemos a nuestra disposición la aplicación *Docker Desktop*, la cual proporciona una interfaz gráfica para el manejo de imágenes y contenedores de una forma limpia y cómoda. Se puede descargar en el siguiente enlace: https://www.docker.com/products/docker-desktop.
 
 [[anchor-6]]
-Dockerfile: crear una imagen con un Dockerfile
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+4. Dockerfile: crear una imagen con un Dockerfile
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Un *Dockerfile* es un archivo que contiene todos los comandos que un usuario utilizaría en consola para construir una imagen. Este Dockerfile se puede consumir utilizando el comando *docker build*.
 
 Por ejemplo, si quisiésemos construir una imagen para el backend de nuestro JumpTheQueue, podríamos hacer un Dockerfile similar al siguiente:
@@ -159,8 +158,8 @@ docker run -p 4200:80 jtq-frontend
 ----
 
 [[anchor-7]]
-Docker-compose: desplegando JumpTheQueue
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+5. Docker-compose: desplegando JumpTheQueue
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Docker Compose es una herramienta para definir y lanzar aplicaciones Docker multicontenedor. Para ello, se define un archivo YAML para configurar los servicios de la aplicación. Después, con un único comando, se crean y lanzan todos los servicios desde tu configuración.
 
 Usar Compose es un proceso de tres pasos:
@@ -200,12 +199,12 @@ Si observamos en Docker Desktop, nos aparecerá un grupo con ambos contenedores.
 image::dockerDesktopDockerCompose.png[]
 
 [[anchor-8]]
-Crear un entorno de CI/CD utilizando Jenkins, SonarQube y GitHub
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+6. Crear un entorno de CI/CD utilizando Jenkins, SonarQube y GitHub
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 [[anchor-99]]
-Bibliografía
-~~~~~~~~~~~~
+8. Bibliografía
+~~~~~~~~~~~~~~~
  - Página principal de DevonFW: https://devonfw.com
  - Wiki de JumpTheQueue: https://github.com/devonfw/jump-the-queue/wiki
  - Página de Spring Boot: https://spring.io/projects/spring-boot
