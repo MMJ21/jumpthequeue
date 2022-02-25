@@ -8,14 +8,17 @@ Marcos Martínez Játiva <marcos.martinez-jativa-external@capgemini.com>
 
 Table of contents
 -----------------
-xref:anchor-1[1. Abstract] +
-xref:anchor-2[2. Introducción a JumpTheQueue] +
-- xref:anchor-3[2.1 JumpTheQueue Backend: Spring Boot] +
-- xref:anchor-4[2.2 JumpTheQueue Frontend: Nginx & Angular] +
-xref:anchor-5[3. Docker: introducción] +
-xref:anchor-6[4. Dockerfile: crear una imagen con un Dockerfile] +
-xref:anchor-7[5. Docker-compose: desplegando JumpTheQueue] +
-xref:anchor-8[6. Crear un entorno de CI/CD utilizando Jenkins, SonarQube y GitHub] +
+xref:anchor-1[] +
+xref:anchor-2[] +
+- xref:anchor-3[] +
+- xref:anchor-4[] +
+xref:anchor-5[] +
+xref:anchor-6[] +
+xref:anchor-7[] +
+xref:anchor-8[] +
+- xref:anchor-9[] +
+- xref:anchor-10[] +
+- xref:anchor-11[] +
 xref:anchor-12[7. Nexus] +
 xref:anchor-99[8. Bibliografía]
 
@@ -219,7 +222,7 @@ Para simular un entorno de CI/CD, vamos a realizar los siguientes pasos:
 [[anchor-9]]
 6.1 Repositorio de JumpTheQueue en GitHub
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-GitHub es una plataforma de desarrollo colaborativo dedicada a alojar proyectos usando el sistema de control de versiones Git. Alojaremos nuestro JumpTheQueue en GitHub para tenerlo preparado para la pipeline de CI/CD.
+GitHub es una plataforma de desarrollo colaborativo dedicada a alojar proyectos usando el sistema de control de versiones Git. Alojaremos nuestro JumpTheQueue en GitHub para tenerlo preparado para la pipeline de CI/CD. Podemos acceder a GitHub en el siguiente enlace: https://github.com/ .
 
 Una vez tengamos un perfil creado, podemos crear un repositorio pinchando en el botón de New en la parte superior izquierda:
 [#img-githubNew]
@@ -266,6 +269,59 @@ docker network create jenkins
 ----
 , pudiendo sustituir 'jenkins' por el nombre que le quieras dar a la red.
 
+[[anchor-11]]
+6.3 Creación de una imagen de Jenkins y configuración
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+*Jenkins* es un servidor 'open source' para la integración continua, utilizada para compilar y probar proyectos de software, facilitando así el proceso de integración de cambios y entrega de versiones. Mediante plugins, facilita además otras partes del ciclo de vida del desarrollo, tales como la compilación, la documentación, el testeo o el despliegue.
+
+Para crear la imagen de Jenkins, seguiremos los pasos que propone la propia wiki que ofrecen los desarrolladores. En primer lugar lanzaremos una imagen 'docker:dind':
+[source, sh]
+----
+docker run --name jenkins-docker --rm --detach ^
+  --privileged --network jenkins --network-alias docker ^
+  --env DOCKER_TLS_CERTDIR=/certs ^
+  --volume jenkins-docker-certs:/certs/client ^
+  --volume jenkins-data:/var/jenkins_home ^
+  --publish 2376:2376 ^
+  docker:dind
+----
+
+Ahora customizaremos una imagen de Jenkins de su repositorio público en dos pasos:
+
+1. Creamos el siguiente Dockerfile:
+
+  FROM jenkins/jenkins:2.319.3-jdk11
+  USER root
+  RUN apt-get update && apt-get install -y lsb-release
+  RUN curl -fsSLo /usr/share/keyrings/docker-archive-keyring.asc \
+    https://download.docker.com/linux/debian/gpg
+  RUN echo "deb [arch=$(dpkg --print-architecture) \
+    signed-by=/usr/share/keyrings/docker-archive-keyring.asc] \
+    https://download.docker.com/linux/debian \
+    $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+  RUN apt-get update && apt-get install -y docker-ce-cli
+  USER jenkins
+  RUN jenkins-plugin-cli --plugins "blueocean:1.25.2 docker-workflow:1.28"
+
+2. Construimos una nueva imagen a partir de este Dockerfile y le damos un nombre significativo:
+
+  docker build -t myjenkins-blueocean:2.319.3-1 .
+
+Finalmente ejecutamos la imagen en un contenedor con el siguiente 'docker run':
+[source, sh]
+----
+docker run --name jenkins-blueocean --rm --detach ^
+  --network jenkins --env DOCKER_HOST=tcp://docker:2376 ^
+  --env DOCKER_CERT_PATH=/certs/client --env DOCKER_TLS_VERIFY=1 ^
+  --volume jenkins-data:/var/jenkins_home ^
+  --volume jenkins-docker-certs:/certs/client:ro ^
+  --publish 8080:8080 --publish 50000:50000 myjenkins-blueocean:2.319.3-1
+----
+
+Se puede apreciar que al comando le estamos pasando la flag '--network', mediante la cual estamos conectando este contenedor a la 'bridge network' que hemos creado en el apartado anterior.
+
+Si todo ha funcionado correctamente, en cualquier navegador podemos acceder a nuestra instalación de Jenkins con la URL http://localhost:8080 .
+
 [[anchor-99]]
 8. Bibliografía
 ~~~~~~~~~~~~~~~
@@ -281,4 +337,6 @@ docker network create jenkins
  - Overview of Docker Compose: https://docs.docker.com/compose/
  - ¿Qué son la integración y distribución continuas (CI/CD)? https://www.redhat.com/es/topics/devops/what-is-ci-cd
  - Artículo de Wikipedia sobre GitHub, a fecha de 25 de febrero de 2022: https://es.wikipedia.org/wiki/GitHub
+ - Adding an existing project to GitHub using the command Line: https://docs.github.com/en/get-started/importing-your-projects-to-github/importing-source-code-to-github/adding-an-existing-project-to-github-using-the-command-line
  - Use bridge networks: https://docs.docker.com/network/bridge/
+ - ¿Qué es Jenkins?: https://sentrio.io/blog/que-es-jenkins/
