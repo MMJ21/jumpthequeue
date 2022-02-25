@@ -201,6 +201,70 @@ image::dockerDesktopDockerCompose.png[]
 [[anchor-8]]
 6. Crear un entorno de CI/CD utilizando Jenkins, SonarQube y GitHub
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+La *CI/CD* es un método para distribuir las aplicaciones a los clientes con frecuencia mediante el uso de la automatización en las etapas del desarrollo de aplicaciones. Los conceptos principales que se le atribuyen son:
+
+- Integración continua ('Continuous Integration', *CI*) ->  proceso de automatización para los desarrolladores, implica diseñar, probar y combinar los cambios nuevos en el código de la aplicación con regularidad en un repositorio compartido.
+- Distribución continua ('Continuous Delivery', *CD*) -> proceso en el cual los cambios que implementa un desarrollador en una aplicación se someten a pruebas automáticas de errores y se cargan en un repositorio (como GitHub o un registro de contenedores) para que el equipo de operaciones pueda implementarlos en un entorno de producción en vivo.
+- Implementación continua ('Continuous Deployment', *CD*) -> lanzamiento automático de los cambios que implementa el desarrollador desde el repositorio hasta la producción, para ponerlos a disposición de los clientes.
+
+Para simular un entorno de CI/CD, vamos a realizar los siguientes pasos:
+
+. Subir nuestro JumpTheQueue a un servicio web de repositorios como GitHub.
+. Crear una 'bridge network' para comunicación entre contenedores.
+. Crear en Docker una imagen de Jenkins y subirla a un contenedor dentro de la nuestra network.
+. Configurar una 'multibranch pipeline' en Jenkins.
+. Clonar una imagen de SonarQube de su repositorio de imagenes y usarla en nuestra network de Docker.
+. Configurar Jenkins para que utilice nuestro contenedor de SonarQube y analice nuestro JumpTheQueue cada vez que se realiza una Pull Request.
+
+[[anchor-9]]
+6.1 Repositorio de JumpTheQueue en GitHub
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GitHub es una plataforma de desarrollo colaborativo dedicada a alojar proyectos usando el sistema de control de versiones Git. Alojaremos nuestro JumpTheQueue en GitHub para tenerlo preparado para la pipeline de CI/CD.
+
+Una vez tengamos un perfil creado, podemos crear un repositorio pinchando en el botón de New en la parte superior izquierda:
+[#img-githubNew]
+.Botón New para crear un nuevo repositorio en GitHub
+image::githubNew.png[]
+
+Una vez tengamos el nombre y la descripción, podemos elegir entre crear el repositorio público o privado. La diferencia es que siendo público, todo el mundo puede ver el repositorio y puede realizar un *fork*, que no es más que realizar una copia del repositorio para poder modificarlo sin alterar el original. Cuando un repositorio es privado, únicamente aquellos que tengan permisos pueden ver el repositorio. Para que otros usuarios puedan realizar commits en él, sea público o privado, debes gestionar los permisos.
+
+Una vez tengamos creado el repositorio en GitHub, abrimos una terminal en la raíz de nuestro proyecto y ejecutamos los siguientes comandos, que inicializan el repositorio de Git, añaden todos los archivos al stage y los confirma en el primer commit:
+[source, sh]
+----
+git init -b main
+git add .
+git commit -m "First commit"
+----
+
+WARNING: Lo más seguro es que Git avise en este punto de que hay un subrepositorio en el recién inicializado. Esto es porque Angular inicializa un proyecto de Git cuando se crea un proyecto nuevo. Para que no haya ningún tipo de problema, si aparece este warning, elimina la carpeta .git del proyecto de Angular antes de ejecutar el 'git add .' .
+
+Ahora en nuestro repositorio creado en GitHub copiamos la URL HTTPS que nos proporciona para clonar el repositorio (el formato será https://github.com/{ownerName}/{projectName}.git), y ejecutamos los siguientes comandos:
+[source, sh]
+----
+git remote add origin https://github.com/{ownerName}/{projectName}.git
+git remote -v
+git push origin main
+----
+
+Ahora deberíamos tener en nuestro GitHub una estructura similar a la siguiente:
+[#img-githubFirstCommit]
+.Repositorio de GitHub en su estado inicial
+image::githubFirstCommit.png[]
+
+
+[[anchor-10]]
+6.2 Creación de una 'bridge network' en Docker
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Una '*bridge network*' permite comunicarse a los contenedores que están conectados a ella, gracias a un puente de comunicación creado por software. El controlador de puentes de Docker instala automáticamente reglas en la máquina 'host' para que los contenedores que están en distintas 'bridge network' no se puedan comunicar.
+
+Por defecto, los contenedores se lanzan en la red 'default-bridge', pero las definidas por usuario tienen varias ventajas como resolución automática de DNS entre contenedores, mejor aislamiento, acople y desacople inmediato de contenedores, puentes configurables, compartición de variables de entorno, entre otras cosas.
+
+Para crear una 'bridge network', es tan sencillo como ejecutar el comando
+[source, sh]
+----
+docker network create jenkins
+----
+, pudiendo sustituir 'jenkins' por el nombre que le quieras dar a la red.
 
 [[anchor-99]]
 8. Bibliografía
@@ -215,3 +279,6 @@ image::dockerDesktopDockerCompose.png[]
  - Dockerfile reference: https://docs.docker.com/engine/reference/builder/
  - Common Directives in Dockerfiles: https://subscription.packtpub.com/book/cloud_and_networking/9781838983444/2/ch02lvl1sec12/common-directives-in-dockerfiles
  - Overview of Docker Compose: https://docs.docker.com/compose/
+ - ¿Qué son la integración y distribución continuas (CI/CD)? https://www.redhat.com/es/topics/devops/what-is-ci-cd
+ - Artículo de Wikipedia sobre GitHub, a fecha de 25 de febrero de 2022: https://es.wikipedia.org/wiki/GitHub
+ - Use bridge networks: https://docs.docker.com/network/bridge/
