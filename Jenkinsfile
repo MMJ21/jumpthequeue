@@ -1,5 +1,4 @@
-pipeline {
-    def app
+pipeline {    
     agent any
     triggers {
         githubPush()
@@ -57,7 +56,10 @@ pipeline {
         stage('Build Backend Image') {
             steps {
                 dir("/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj") {
-                    app = docker.build(".")
+                    script{
+                        def app
+                        app = docker.build(".")
+                    }
                 }
             }
         }
