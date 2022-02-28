@@ -5,7 +5,7 @@ pipeline {
     }
     tools {
         maven 'Maven'
-        docker 'Docker'
+        dockerTool 'Docker'
     }
     environment {
         firstDockerImageName = "jtq-backend"
@@ -59,7 +59,7 @@ pipeline {
             steps {
                 script {
                     def app
-                    app = docker.build(firstDockerImageName, "/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj")
+                    app = dockerTool.build(firstDockerImageName, "/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj")
                 }
             }
         }
@@ -67,7 +67,7 @@ pipeline {
             steps {
                 script {
                     def app
-                    app = docker.build("jtq-frontend:{env.BUILD_ID}", "/var/jenkins_home/workspace/jumpthequeue_development/angular")
+                    app = dockerTool.build("jtq-frontend:{env.BUILD_ID}", "/var/jenkins_home/workspace/jumpthequeue_development/angular")
                 }
             }
         }
