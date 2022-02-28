@@ -5,6 +5,7 @@ pipeline {
     }
     tools {
         maven 'Maven'
+        docker 'Docker'
     }
     environment {
         firstDockerImageName = "jtq-backend"
