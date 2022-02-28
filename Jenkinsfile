@@ -55,21 +55,17 @@ pipeline {
         }        
         stage('Build Backend Image') {
             steps {
-                dir("/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj") {
-                    script {
-                        def app
-                        app = docker.build(".")
-                    }
+                script {
+                    def app
+                    app = docker.build("/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj")
                 }
             }
         }
         stage('Build Frontend Image') {
             steps {
-                dir("/var/jenkins_home/workspace/jumpthequeue_development/angular") {
-                    script {
-                        def app
-                        app = docker.build(".")
-                    }
+                script {
+                    def app
+                    app = docker.build("/var/jenkins_home/workspace/jumpthequeue_development/angular")
                 }
             }
         }
