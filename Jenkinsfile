@@ -7,6 +7,7 @@ pipeline {
         maven 'Maven'
     }
     environment {
+        firstDockerImageName = "jtq-backend"
         NEXUS_VERSION = "nexus3"
         NEXUS_PROTOCOL = "http"
         NEXUS_URL = "172.19.0.4:8081"
@@ -57,7 +58,7 @@ pipeline {
             steps {
                 script {
                     def app
-                    app = docker.build("jtq-backend:{env.BUILD_ID}", "/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj")
+                    app = docker.build(firstDockerImageName, "/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj")
                 }
             }
         }
