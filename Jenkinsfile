@@ -58,7 +58,7 @@ pipeline {
             steps {
                 script {
                     def app
-                    app = docker.withRegistry("tcp://host.docker.internal:2375") {
+                    app = docker.withServer("tcp://host.docker.internal:2375") {
                         docker.build(firstDockerImageName, "/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj")
                     }
                 }
