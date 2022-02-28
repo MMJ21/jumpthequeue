@@ -66,11 +66,8 @@ pipeline {
                 script {
                     def app
                     app = docker.build("jtq-frontend:{env.BUILD_ID}", "/var/jenkins_home/workspace/jumpthequeue_development/angular")
-                    }
                 }
             }
         }
-        
-        
     }
 }
