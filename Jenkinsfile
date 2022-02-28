@@ -5,7 +5,6 @@ pipeline {
     }
     tools {
         maven 'Maven'
-        dockerTool 'Docker'
     }
     environment {
         firstDockerImageName = "jtq-backend"
@@ -59,7 +58,9 @@ pipeline {
             steps {
                 script {
                     def app
-                    app = dockerTool.build(firstDockerImageName, "/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj")
+                    app = docker.withRegistry("tcp://host.docker.internal:2375") {
+                        docker.build(firstDockerImageName, "/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj")
+                    }
                 }
             }
         }
