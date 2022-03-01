@@ -57,7 +57,7 @@ pipeline {
         stage('Build Backend Image') {
             steps {
                 script {
-                    docker.withRegistry('172.19.0.5:8081/repository/docker-img-repo/') {
+                    docker.withRegistry('172.19.0.5:8082') {
                         def app
                         app = docker.build(firstDockerImageName, "/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj")
                         app.push()
