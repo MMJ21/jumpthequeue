@@ -22,7 +22,7 @@ pipeline {
                     docker.withRegistry('172.19.0.5:8082') {
                         def app
                         app = docker.build(firstDockerImageName, "/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj")
-                        app.push()
+                        //app.push()
                     }
                     
                 }
