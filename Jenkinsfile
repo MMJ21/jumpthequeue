@@ -57,7 +57,7 @@ pipeline {
                         def app
                         app = docker.build(backendDockerImageName, "/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj")
                         app.push('latest')
-                    
+                    }
                 }
             }
         }
