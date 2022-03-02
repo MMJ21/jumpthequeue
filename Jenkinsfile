@@ -16,49 +16,50 @@ pipeline {
                 echo 'M2_HOME = /opt/maven'
             }
         }
-        stage('Build Projects') {
+        stage('Build and Analyse Projects') {
             parallel {
-                stage('Build Backend') {
-                    steps {
-                        dir("/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj") {
-                            sh 'mvn clean package'
+                stage('Backend') {
+                    stages {
+                        stage('Build') {
+                            steps {
+                                dir("/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj") {
+                                    sh 'mvn clean package'
+                                }
+                            }
                         }
-                    }
+                        stage('SonarQube') {
+                            steps {
+                                withSonarQubeEnv('SonarQube') {
+                                    dir("/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj") {
+                                        sh "mvn verify sonar:sonar -Dsonar.login=0c9c089575d7a724b74b6a6bdf69e66062dba06d"
+                                    }
+                                }
+                            }
+                        }
+                    }                    
                 }
-                stage('Build Frontend') {
-                    steps {
-                        dir("/var/jenkins_home/workspace/jumpthequeue_development/angular") {
-                            sh 'yarn install'
-                            sh 'npm run ng build'
+                stage('Frontend') {
+                    stages {
+                        stage('Build') {
+                            steps {
+                                dir("/var/jenkins_home/workspace/jumpthequeue_development/angular") {
+                                    sh 'yarn install'
+                                    sh 'npm run ng build'
+                                }
+                            }
                         }
-                    }
+                        stage('SonarQube') {
+                            steps {                 
+                                withSonarQubeEnv('SonarQube') {
+                                    dir("/var/jenkins_home/workspace/jumpthequeue_development/angular") {
+                                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=develop"
+                                    }
+                                }
+                            }
+                        }
+                    }                    
                 }
             }            
-        }
-        stage('SonarQube') {
-            parallel {
-                stage('Maven SonarQube') {
-                    steps {
-                        withSonarQubeEnv('SonarQube') {
-                            dir("/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj") {
-                                sh "mvn verify sonar:sonar -Dsonar.login=0c9c089575d7a724b74b6a6bdf69e66062dba06d"
-                            }
-                        }
-                    }
-                }
-                stage('Angular SonarQube') {
-                    environment {
-                        scannerHome = tool 'SonarQube';
-                    }
-                    steps {                 
-                        withSonarQubeEnv('SonarQube') {
-                            dir("/var/jenkins_home/workspace/jumpthequeue_development/angular") {
-                                sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=develop"
-                            }
-                        }
-                    }
-                } 
-            }
         }        
         stage('Create and Push Docker Images') {
             steps {
