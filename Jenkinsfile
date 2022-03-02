@@ -49,10 +49,10 @@ pipeline {
                             }
                         }
                         stage('SonarQube') {
-                            steps {
-                                environment {
-                                    scannerHome = tool 'SonarQube';
-                                }                 
+                            environment {
+                                scannerHome = tool 'SonarQube';
+                            }  
+                            steps {                                               
                                 withSonarQubeEnv('SonarQube') {
                                     dir("/var/jenkins_home/workspace/jumpthequeue_development/angular") {
                                         sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=develop"
