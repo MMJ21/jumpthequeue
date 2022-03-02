@@ -53,7 +53,7 @@ pipeline {
         stage('Build Backend Image') {
             steps {
                 script {
-                    docker.withRegistry('http://172.19.0.5:8082/repository/docker-img-repo', 'nexus-admin-credentials') {
+                    docker.withRegistry('http://172.19.0.4:8082/repository/docker-img-repo', 'nexus-admin-credentials') {
                         def app
                         app = docker.build(backendDockerImageName, "/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj")
                         app.push('latest')
