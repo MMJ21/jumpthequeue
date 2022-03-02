@@ -29,7 +29,7 @@ pipeline {
                     steps {
                         dir("/var/jenkins_home/workspace/jumpthequeue_development/angular") {
                             sh 'yarn install'
-                            sh 'ng build'
+                            sh 'npm run ng build'
                         }
                     }
                 }
