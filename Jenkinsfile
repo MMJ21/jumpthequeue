@@ -7,12 +7,8 @@ pipeline {
         maven 'Maven'
     }
     environment {
-        firstDockerImageName = "jtq-backend"
-        NEXUS_VERSION = "nexus3"
-        NEXUS_PROTOCOL = "http"
-        NEXUS_URL = "172.19.0.4:8081"
-        NEXUS_REPOSITORY = "maven-nexus-repo"
-        NEXUS_CREDENTIAL_ID = "nexus-user-credentials"
+        backendDockerImageName = "jtq-backend"
+        frontendDockerImageName = "jtq-frontend"
     }
 
     stages {
@@ -57,10 +53,10 @@ pipeline {
         stage('Build Backend Image') {
             steps {
                 script {
-                    docker.withRegistry('172.19.0.5:8082') {
+                    docker.withRegistry('172.19.0.5:8082/repository/docker-img-repo', 'nexus-admin-credentials') {
                         def app
-                        app = docker.build(firstDockerImageName, "/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj")
-                        app.push()
+                        app = docker.build(backendDockerImageName, "/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj")
+                        app.push('latest')
                     
                 }
             }
@@ -69,7 +65,7 @@ pipeline {
             steps {
                 script {
                     def app
-                    app = docker.build("jtq-frontend:{env.BUILD_ID}", "/var/jenkins_home/workspace/jumpthequeue_development/angular")
+                    app = docker.build(frontendDockerImageName, "/var/jenkins_home/workspace/jumpthequeue_development/angular")
                 }
             }
         }
