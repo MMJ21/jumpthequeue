@@ -1,10 +1,8 @@
 pipeline {    
     agent any
-    triggers {
-        githubPush()
-    }
     tools {
         maven 'Maven'
+        nodejs 'NodeJS'
     }
     environment {
         backendDockerImageName = "jtq-backend"
@@ -18,12 +16,24 @@ pipeline {
                 echo 'M2_HOME = /opt/maven'
             }
         }
-        stage('Build') {
-            steps {
-                dir("/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj") {
-                    sh 'mvn clean package'
+        stage('Build Projects') {
+            parallel {
+                stage('Build Backend') {
+                    steps {
+                        dir("/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj") {
+                            sh 'mvn clean package'
+                        }
+                    }
                 }
-            }
+                stage('Build Frontend') {
+                    steps {
+                        dir("/var/jenkins_home/workspace/jumpthequeue_development/angular") {
+                            sh 'yarn install'
+                            sh 'ng build'
+                        }
+                    }
+                }
+            }            
         }
         stage('SonarQube') {
             parallel {
@@ -50,22 +60,17 @@ pipeline {
                 } 
             }
         }        
-        stage('Build Backend Image') {
+        stage('Create and Push Docker Images') {
             steps {
                 script {
                     docker.withRegistry('http://172.19.0.4:8082/repository/docker-img-repo', 'nexus-admin-credentials') {
-                        def app
-                        app = docker.build(backendDockerImageName, "/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj")
-                        app.push('latest')
+                        def backendImage
+                        def frontendImage
+                        backendImage = docker.build(backendDockerImageName, "/var/jenkins_home/workspace/jumpthequeue_development/java/jtqj")
+                        backendImage.push('latest')
+                        frontendImage = docker.build(frontendDockerImageName, "/var/jenkins_home/workspace/jumpthequeue_development/angular")
+                        frontendImage.push('latest')
                     }
-                }
-            }
-        }
-        stage('Build Frontend Image') {
-            steps {
-                script {
-                    def app
-                    app = docker.build(frontendDockerImageName, "/var/jenkins_home/workspace/jumpthequeue_development/angular")
                 }
             }
         }
