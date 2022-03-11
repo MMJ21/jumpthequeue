@@ -274,7 +274,7 @@ docker network create jenkins
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 *Jenkins* es un servidor 'open source' para la integración continua, utilizada para compilar y probar proyectos de software, facilitando así el proceso de integración de cambios y entrega de versiones. Mediante plugins, facilita además otras partes del ciclo de vida del desarrollo, tales como la compilación, la documentación, el testeo o el despliegue.
 
-Para crear la imagen de Jenkins, seguiremos los pasos que propone la propia wiki que ofrecen los desarrolladores. En primer lugar lanzaremos una imagen 'docker:dind':
+Para crear la imagen de Jenkins, seguiremos los pasos que propone la propia wiki que ofrecen los desarrolladores. En primer lugar lanzaremos una imagen de Docker para crear una instalación tipo "Docker in Docker" (*dind*):
 [source, sh]
 ----
 docker run --name jenkins-docker --rm --detach ^
@@ -321,6 +321,17 @@ docker run --name jenkins-blueocean --rm --detach ^
 Se puede apreciar que al comando le estamos pasando la flag '--network', mediante la cual estamos conectando este contenedor a la 'bridge network' que hemos creado en el apartado anterior.
 
 Si todo ha funcionado correctamente, en cualquier navegador podemos acceder a nuestra instalación de Jenkins con la URL http://localhost:8080 .
+
+Para obtener la contraseña de administrador, necesaria para hacer las configuraciones iniciales, podemos consultar el output de la terminal del contenedor en el propio Docker Desktop.
+
+Una vez realizadas las configuraciones iniciales (se puede seguir la wiki de Jenkins para Windows en https://www.jenkins.io/doc/book/installing/docker/), pasaremos a instalar los siguientes plug-ins, necesarios para nuestro entorno:
+
+- GitHub Plugin
+- Maven Integration Plugin
+- Nexus Platform Plugin
+- Nexus Artifact Uploader
+- NodeJS Plugin
+- SonarQube Scanner for Jenkins
 
 [[anchor-99]]
 8. Bibliografía
