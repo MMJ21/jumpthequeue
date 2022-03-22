@@ -7,8 +7,8 @@ on:
     branches:
       - main
 jobs:
-  build_backend:
-    name: Build Backend
+  build_and_analyse_backend:
+    name: Build And Analyse Backend
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -19,8 +19,11 @@ jobs:
         with:
           java-version: 11
       - name: Build and analyze backend
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         working-directory: ./java/jtqj
-        run: mvn clean package
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=MMJ21_jumpthequeue
         
   build_frontend:
     name: Build Frontend
@@ -41,8 +44,8 @@ jobs:
           yarn install
           ng build
   
-  analyse:
-    needs: [build_backend, build_frontend]
+  analyse_frontend:
+    needs: [build_frontend]
     name: Analyse
     runs-on: ubuntu-latest
     steps:
