@@ -21,7 +21,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v3.0.0
         with:
-          node-version: 11.0
+          node-version: latest
       - name: Setup Angular CLI
         uses: mayurrawte/github-angular-actions@latest
       - name: Setup Yarn
