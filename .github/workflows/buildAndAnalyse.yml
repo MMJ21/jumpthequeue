@@ -19,11 +19,12 @@ jobs:
         with:
           java-version: 11
       - name: Build and analyze backend
+        working-directory: ./java/jtqj
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SECOND_SONAR_TOKEN }}
-        working-directory: ./java/jtqj
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=MMJ21_jumpthequeue
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=jumpthequeue
+
         
   build_frontend:
     name: Build Frontend
@@ -56,4 +57,4 @@ jobs:
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SECOND_SONAR_TOKEN }}
