@@ -1,5 +1,9 @@
 name: Build And Analyse
-on: [push]
+on:
+  push:
+  pull_request:
+    branches:
+      - master
 jobs:
   build_backend:
     name: Build Backend
