@@ -1,0 +1,46 @@
+name: Build And Analyse
+on: [push]
+jobs:
+  build_backend:
+    name: Build Backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Build and analyze backend
+        working-directory: ./java/jtqj
+        run: mvn clean package
+        
+  build_frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3.0.0
+      - name: Setup Angular CLI
+        uses: mayurrawte/github-angular-actions@latest
+      - name: Setup Yarn
+        uses: CultureHQ/actions-yarn@v1.0.1
+      - name: Build frontend
+        working-directory: ./angular
+        run: |
+          yarn install
+          ng build
+  
+  analyse:
+    name: Analyse
+    runs-on: ubuntu-latest
+    steps:
+      - name: Analyze
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
