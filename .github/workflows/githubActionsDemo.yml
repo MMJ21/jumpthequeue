@@ -20,8 +20,6 @@ jobs:
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=MMJ21_jumpthequeue
       - name: Setup Node.js environment
         uses: actions/setup-node@v3.0.0
-        with:
-          node-version: latest
       - name: Setup Angular CLI
         uses: mayurrawte/github-angular-actions@latest
       - name: Setup Yarn
