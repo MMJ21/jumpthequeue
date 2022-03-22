@@ -36,9 +36,13 @@ jobs:
           ng build
   
   analyse:
+    needs: [build_backend, build_frontend]
     name: Analyse
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Analyze
         uses: SonarSource/sonarcloud-github-action@master
         env:
