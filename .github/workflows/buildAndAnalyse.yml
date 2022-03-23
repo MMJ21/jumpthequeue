@@ -57,13 +57,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Go to next Workflow
-      - if: github.ref == 'refs/heads/main'
-      - uses: peter-evans/repository-dispatch@v1
-      - with:
+        if: github.ref == 'refs/heads/main'
+        uses: peter-evans/repository-dispatch@v1
+        with:
           token: ${{ secrets.REPO_GHA_PAT }}
           repository: ${{ github.repository }}
           event-type: trigger-next-workflow
           client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
-      - name: Go to next workflow
-        run: echo "Going to next Workflow"
     
