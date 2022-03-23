@@ -61,6 +61,6 @@ jobs:
         with:
           token: ${{ secrets.REPO_GHA_PAT }}
           repository: ${{ github.repository }}
-          event-type: trigger-next-workflow
+          event-type: trigger-docker-push
           client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
     
