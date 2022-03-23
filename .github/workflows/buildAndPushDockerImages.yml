@@ -24,8 +24,8 @@ jobs:
       - name: Docker Build And Push Frontend
         working-directory: ./angular
         run: |
-          docker build -t mmj21/repo:jtq-frontend-1.0
-          docker push mmj21/repo:jtq-frontend-1.0
+          docker build -t mmj21/repo:jtq-frontend-1.0 .
+          docker push mmj21/repo:jtq-frontend-1.0 .
           
         
       
