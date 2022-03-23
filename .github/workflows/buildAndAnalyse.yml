@@ -26,8 +26,8 @@ jobs:
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=jumpthequeue
 
         
-  build_frontend:
-    name: Build Frontend
+  build_and_analyse_frontend:
+    name: Build And Analyse Frontend
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -44,17 +44,25 @@ jobs:
         run: |
           yarn install
           ng build
-  
-  analyse_frontend:
-    needs: [build_frontend]
-    name: Analyse
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: Analyze
+          ng test
+      - name: Analyze frontend
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SECOND_SONAR_TOKEN }}
+      
+  next_workflow:
+    if: github.ref == 'refs/heads/main'
+    needs: [build_and_analyse_backend, build_and_analyse_frontend]
+    name: Next workflow
+    runs-on: ubuntu-latest
+    steps:
+      - uses: peter-evans/repository-dispatch@v1
+      - with:
+          token: ${{ secrets.REPO_GHA_PAT }}
+          repository: ${{ github.repository }}
+          event-type: trigger-next-workflow
+          client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
+      - name: Go to next workflow
+        run: echo "Going to next Workflow"
+    
