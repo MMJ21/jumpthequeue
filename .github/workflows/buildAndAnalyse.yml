@@ -26,8 +26,8 @@ jobs:
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=jumpthequeue
 
         
-  build_frontend:
-    name: Build Frontend
+  build_and_analyse_frontend:
+    name: Build And Analyse Frontend
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -44,16 +44,8 @@ jobs:
         run: |
           yarn install
           ng build
-  
-  analyse_frontend:
-    needs: [build_frontend]
-    name: Analyse
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: Analyze
+          ng test
+      - name: Analyze frontend
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
@@ -61,7 +53,7 @@ jobs:
       
   next_workflow:
     if: github.ref == 'refs/heads/main'
-    needs: [build_and_analyse_backend, build_frontend]
+    needs: [build_and_analyse_backend, build_and_analyse_frontend]
     name: Next workflow
     runs-on: ubuntu-latest
     steps:
