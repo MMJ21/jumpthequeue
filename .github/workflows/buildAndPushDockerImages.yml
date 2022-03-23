@@ -1,7 +1,7 @@
 name: Build and Push Docker Images
 on:
   repository_dispatch:
-    types: [trigger-next-workflow]
+    types: [trigger-docker-push]
 
 jobs:
   build_and_push_docker_images:
