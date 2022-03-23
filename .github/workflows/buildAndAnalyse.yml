@@ -42,6 +42,7 @@ jobs:
       - name: Build frontend
         working-directory: ./angular
         run: |
+          yarn add karma karma-chrome-launcher
           yarn install
           ng build
           ng test
