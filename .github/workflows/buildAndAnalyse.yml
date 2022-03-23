@@ -40,14 +40,13 @@ jobs:
       - name: Setup Yarn
         uses: CultureHQ/actions-yarn@v1.0.1
       - name: Setup Chrome
-        uses: browser-actions/setup-chrome@v0.0.0
+        uses: tj-actions/puppeteer@v3.2
       - name: Build frontend
         working-directory: ./angular
         run: |
-          yarn add karma-chrome-launcher
           yarn install
           ng build
-          ng test
+          ng test --browsers=ChromeHeadless
       - name: Analyze frontend
         uses: SonarSource/sonarcloud-github-action@master
         env:
