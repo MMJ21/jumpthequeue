@@ -39,6 +39,8 @@ jobs:
         uses: mayurrawte/github-angular-actions@latest
       - name: Setup Yarn
         uses: CultureHQ/actions-yarn@v1.0.1
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v0.0.0
       - name: Build frontend
         working-directory: ./angular
         run: |
