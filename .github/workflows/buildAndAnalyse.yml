@@ -44,6 +44,7 @@ jobs:
         run: |
           yarn install
           ng build
+          ng test --watch=false --code-coverage --browsers='ChromeHeadless'
       - name: Analyze frontend
         uses: SonarSource/sonarcloud-github-action@master
         env:
