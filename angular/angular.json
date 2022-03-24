@@ -31,8 +31,13 @@
               "src/theme.scss",
               "node_modules/@covalent/core/common/platform.css"
             ],
-            "scripts": ["node_modules/hammerjs/hammer.min.js"],
-            "es5BrowserSupport": true
+            "scripts": [],
+            "vendorChunk": true,
+            "extractLicenses": false,
+            "buildOptimizer": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true
           },
           "configurations": {
             "production": {
@@ -45,9 +50,7 @@
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "extractCss": true,
               "namedChunks": false,
-              "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true,
@@ -56,10 +59,15 @@
                   "type": "initial",
                   "maximumWarning": "2mb",
                   "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
                 }
               ]
             }
-          }
+          },
+          "defaultConfiguration": ""
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
@@ -88,7 +96,7 @@
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": ["node_modules/hammerjs/hammer.min.js"],
+            "scripts": [],
             "assets": [
               "src/favicon.ico",
               "src/assets"
@@ -96,14 +104,11 @@
           }
         },
         "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
+          "builder": "@angular-eslint/builder:lint",
           "options": {
-            "tsConfig": [
-              "src/tsconfig.app.json",
-              "src/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
             ]
           }
         }
@@ -125,22 +130,14 @@
               "devServerTarget": "angular:serve:production"
             }
           }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": "e2e/tsconfig.e2e.json",
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
         }
       }
     }
   },
   "defaultProject": "angular",
   "cli": {
-    "analytics": "83483544-a0e2-455c-86a1-862ddbd24b7d",
-    "packageManager": "yarn"
+    "packageManager": "yarn",
+    "analytics": false,
+    "defaultCollection": "@angular-eslint/schematics"
   }
 }
