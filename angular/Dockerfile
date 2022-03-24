@@ -1,5 +1,5 @@
 #Stage 1: Build Node App
-FROM node:16.3.0-alpine as node
+FROM node:16.10.0-alpine as node
 WORKDIR /app
 COPY . .
 RUN set NODE_OPTIONS=--openssl-legacy-provider
