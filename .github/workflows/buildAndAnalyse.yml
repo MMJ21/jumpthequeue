@@ -1,0 +1,67 @@
+name: Build And Analyse
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  build_and_analyse_backend:
+    name: Build And Analyse Backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Build and analyze backend
+        working-directory: ./java/jtqj
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=jumpthequeue
+
+        
+  build_and_analyse_frontend:
+    name: Build And Analyse Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3.0.0
+      - name: Setup Angular CLI
+        uses: mayurrawte/github-angular-actions@latest
+      - name: Setup Yarn
+        uses: CultureHQ/actions-yarn@v1.0.1
+      - name: Build frontend
+        working-directory: ./angular
+        run: |
+          yarn install
+          ng build
+          ng test --watch=false --code-coverage --browsers='ChromeHeadless'
+      - name: Analyze frontend
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SECOND_SONAR_TOKEN }}
+      
+  next_workflow:    
+    name: Next workflow
+    needs: [build_and_analyse_backend, build_and_analyse_frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Go to next Workflow
+        if: github.ref == 'refs/heads/main'
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.REPO_GHA_PAT }}
+          repository: ${{ github.repository }}
+          event-type: trigger-docker-push
+          client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
+    
