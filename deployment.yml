@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      containers:
+      - name: jtq-frontend
+        image: mmj21/repo:jtq-frontend-1.0
+        ports:
+        - containerPort: 80
+      - name: jtq-backend
+        image: mmj21/repo:jtq-backend-1.0
+        ports:
+        - containerPort: 8081

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: jumpthequeue
+  labels:
+    app: web
+spec:
+  containers:
+  - name: jtq-backend
+    image: mmj21/repo:jtq-backend-1.0
+    ports:
+      - containerPort: 8081
+  - name: jtq-frontend
+    image: mmj21/repo:jtq-frontend-1.0
+    ports:
+      - containerPort: 4200

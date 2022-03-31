@@ -1,0 +1,353 @@
+Onboarding Capgemini
+====================
+Marcos Martínez Játiva <marcos.martinez-jativa-external@capgemini.com>
+:revdate: 24-02-2022
+:revnumber: 1.0
+:source-highlighter: coderay
+:imagesdir: ./assets
+
+Table of contents
+-----------------
+xref:anchor-1[] +
+xref:anchor-2[] +
+- xref:anchor-3[] +
+- xref:anchor-4[] +
+xref:anchor-5[] +
+xref:anchor-6[] +
+xref:anchor-7[] +
+xref:anchor-8[] +
+- xref:anchor-9[] +
+- xref:anchor-10[] +
+- xref:anchor-11[] +
+xref:anchor-12[7. Nexus] +
+xref:anchor-99[8. Bibliografía]
+
+[[anchor-1]]
+1. Abstract
+~~~~~~~~~~~~
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget orci ut dui laoreet facilisis eget in leo. Nulla facilisi. Suspendisse fermentum nunc eu nibh commodo sodales. Fusce porta malesuada nisl sed tristique. Aenean vehicula mauris id elementum pharetra. Cras imperdiet porttitor cursus. Suspendisse id dolor blandit lorem egestas efficitur. Proin dui felis, malesuada id arcu sit amet, pulvinar semper mauris. Vestibulum non vulputate erat. Nulla ut viverra tortor. Etiam lobortis odio non nunc vestibulum ultricies. Morbi semper ligula ac blandit ultricies. Mauris rutrum commodo diam, quis auctor velit condimentum vel. Phasellus suscipit tellus quis dui gravida accumsan.
+
+
+[[anchor-2]]
+2. Introducción a JumpTheQueue
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+JumpTheQueue es una aplicación web diseñada como introducción al desarrollo bajo el entorno de link:https://devonfw.com/website/pages/welcome/welcome.html[*devonfw*]. A grandes rasgos, la aplicación aborda el problema de tener que esperar a acceder a un espacio donde se celebre un evento en una cola. Esta asigna un número a cada visitante un "número de cola" para que no se acumule tanta gente en la entrada, y poder acudir a una hora determinada según tu número de cola (acorde con la filosofía JIIT). 
+
+Puedes encontrar la especificación de requisitos de la aplicación en este enlace: https://github.com/devonfw/jump-the-queue/wiki/jump-the-queue-design .
+
+
+[[anchor-3]]
+2.1 JumpTheQueue Backend: Spring Boot
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+El backend se estructura según la arquitectura *devon4j* basada en componentes, que consiste en tres capas: 
+
+  - Capa de *Servicios*: expone la API REST para intercambiar información con las aplicaciones cliente.
+  - Capa de *Lógica*: se encarga de la lógica de negocio de la aplicación.
+  - Capa de *Acceso a Datos*: se conecta y se comunica con la base de datos.
+
+Además, incorpora en su ciclo de desarrollo funcionalidades como seguridad, _logging_ y manejo de excepciones.
+
+En cuanto al stack tecnológico, el backend de JumpTheQueue usa *Spring Boot*, basado en el framework Spring de Java, que nos permite realizar aplicaciones Web con configuraciones iniciales mínimas. En lugar de tener que desplegar los archivos WAR, estas aplicaciones simplemente se ejecutan directamente mediante Java, al tener el contenedor de servlets embebido (generalmente Apache Tomcat, se pueden usar otros como Jetty o Undertow).
+
+A parte de Spring Boot, otras herramientas notables utilizadas son *Maven* como herramienta de gestión de proyectos, *Jakarta Persistance*, *QueryDsl* y *H2* para la persistencia y *Apache CXF* como framework para servicios Web.
+
+Puedes encontrar más información sobre el desarrollo del backend de JumpTheQueue en la wiki de devonfw: https://github.com/devonfw/jump-the-queue/wiki/devon4j-overview
+
+
+[[anchor-4]]
+2.2 JumpTheQueue Frontend: Nginx & Angular
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Para el frontend, conviene hablar primero del stack tecnológico para comprender la arquitectura. Para este proyecto usamos:
+
+ - *Nginx* como servidor web/proxy inverso. Ofrece características importantes como balanceo de carga, sockets, manejo de archivos estáticos, archivos de índice, autoindexación, TLS/SSL, soporte para IPv6, entre otros.
+ - *Angular* como framework principal de desarrollo. Mantenido por Google y desarrollado en TypeScript, este framework usa una estructura basada en componentes con propiedades, las cuales son usadas para hacer el _binding_ de los datos. 
+ - *Yarn* como herramienta de gestión de proyectos.
+ - Librerías de utilidades y componentes como *Angular Material* y *Teradata Covalent*
+
+Tanto Nginx como Angular delimitan una estructura específica para trabajar, por lo que para este proyecto, la arquitectura escogida es la estándar de Angular. Puedes encontrar más información en la propia página de Angular: https://angular.io/guide/architecture .
+
+Más información sobre el desarrollo del frontend de JumpTheQueue en: https://github.com/devonfw/jump-the-queue/wiki/devon4ng-introduction .
+
+[[anchor-5]]
+3. Docker: introducción
+~~~~~~~~~~~~~~~~~~~~~~~
+*Docker* es una un conjunto de herramientas de plataforma como servicio (Platform as a service, PaaS) que utiliza virtualización a nivel de sistema operativo (SO) para entregar software en paquetes llamados _contenedores_. 
+
+Docker se compone de tres elementos fundamentales:
+
+ - *Contenedores*: contienen todo lo necesario para que una aplicación pueda funcionar independientemente.
+ - *Imágenes*: se puede entender una imagen docker como un SO con aplicaciones instaladas, sobre la cual se pueden añadir más aplicaciones que se vayan a utilizar en otros equipos donde se vaya a utilizar la imagen.
+ - *Repositorios*: contienen imágenes creadas por los usuarios y puestas a disposición del público. Estos permiten desarrollar o desplegar aplicaciones de forma simple y rápida en base a plantillas.
+
+Al utilizar Windows, tenemos a nuestra disposición la aplicación *Docker Desktop*, la cual proporciona una interfaz gráfica para el manejo de imágenes y contenedores de una forma limpia y cómoda. Se puede descargar en el siguiente enlace: https://www.docker.com/products/docker-desktop.
+
+[[anchor-6]]
+4. Dockerfile: crear una imagen con un Dockerfile
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Un *Dockerfile* es un archivo que contiene todos los comandos que un usuario utilizaría en consola para construir una imagen. Este Dockerfile se puede consumir utilizando el comando *docker build*.
+
+Por ejemplo, si quisiésemos construir una imagen para el backend de nuestro JumpTheQueue, podríamos hacer un Dockerfile similar al siguiente:
+
+[source, docker]
+----
+#Stage 1: Build Maven Application
+FROM maven:3.8.4-jdk-11 AS build
+WORKDIR /home/app
+COPY . .
+RUN mvn clean package
+
+#Stage 2: Deploy Maven App
+FROM openjdk:8-jdk-alpine
+COPY --from=build home/app/server/target/jtqj-server-bootified.war jtq.war
+ENTRYPOINT ["java","-jar","/jtq.war"]
+----
+
+Como podemos observar, este Dockerfile tiene dos fases o 'Stages': una para construir el proyecto Maven y otra para ejecutarlo.
+
+Centrándonos en el 'Stage 1', podemos apreciar las siguientes directivas:
+
+  - *FROM* maven:3.8.4-jdk.11 -> selecciona del repositorio público de imágenes de Maven esta versión en específico.
+  - *AS* build -> nombra la imagen para su uso posterior. Veremos su uso en el 'Stage 2'.
+  - *WORKDIR* /home/app -> selecciona como directorio de trabajo en la imagen '/home/app' .
+  - *COPY* . . -> copia el contenido del directorio actual donde se está ejecutando el Dockerfile (normalmente, la raíz del proyecto) a la raíz del directorio de trabajo de la imagen (en nuestro caso '/home/app', como hemos especificado en la anterior directiva).
+  - *RUN* mvn clean package -> ejecuta en el directorio de trabajo el comando mvn clean package, el cual construye la aplicación.
+
+Si nos vamos al 'Stage 2', podemos apreciar directivas similares:
+
+ - *FROM* openjdk:8-jdk-alpine -> igual que en el stage anterior, seleccionamos esta imagen en específico del repositorio de OpenJDK.
+ - *COPY* --from=build home/app/server/target/jtqj-server-bootified.war jtq.war -> copia de la imagen anterior el .war seleccionado a esta nueva imagen. Como podemos observar, con la flag '--from' podemos utilizar imagenes creadas anteriormente en el Dockerfile y usar sus archivos en cualquier momento de la build.
+ - *ENTRYPOINT* ["java", "-jar", "/jtq.war"] -> señala el comando de inicialización que se ejecutará cuando se lance un contenedor con esta imagen. Esto quiere decir que cuando creemos un contenedor que contenga esta imagen, lo primero que hará será lanzar el comando *java -jar /jtq.war*, el cual lanza la aplicación.
+
+Para construir la imagen, simplemente ejecutamos el siguiente comando desde la raíz de nuestro proyecto:
+[source, sh]
+----
+docker build -t jtq-backend .
+----
+
+La flag '-t' nos permite nombrar la imagen como deseemos.
+
+Para lanzar la imagen a un contenedor, ejecutamos el comando *docker run* tal como:
+[source, sh]
+----
+docker run -p 8081:8081 jtq-backend
+----
+
+Esto lanzará un contenedor que portará la imagen jtq-backend. Con la flag '-p', vinculamos el puerto 8081 de nuestro contenedor con el puerto 8081 de nuestro 'localhost'. Si quisiesemos escuchar en otro puerto en nuestro 'localhost', podríamos cambiar el primero 8081 por cualquier otro puerto. El segundo únicamente habría que cambiarlo si cambiásemos el puerto en el que se inicia la aplicación.
+
+Para el frontend, usamos un Dockerfile similar al del backend, pero cambiando las imagenes por las requeridas de Node y Nginx, y los comandos como toquen:
+[source, docker]
+----
+#Stage 1: Build Node App
+FROM node:16.3.0-alpine as node
+WORKDIR /app
+COPY . .
+RUN set NODE_OPTIONS=--openssl-legacy-provider
+RUN npm install --legacy-peer-deps 
+RUN npm run build --prod
+
+#Stage 2: Deploy in NGINX
+FROM nginx:alpine
+WORKDIR /usr/share/nginx/html
+COPY --from=node /app/dist/angular .
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
+----
+
+Para construir y lanzar la imagen, igualmente similar:
+[source, sh]
+----
+docker build -t jtq-frontend . 
+
+docker run -p 4200:80 jtq-frontend
+----
+
+[[anchor-7]]
+5. Docker-compose: desplegando JumpTheQueue
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Docker Compose es una herramienta para definir y lanzar aplicaciones Docker multicontenedor. Para ello, se define un archivo YAML para configurar los servicios de la aplicación. Después, con un único comando, se crean y lanzan todos los servicios desde tu configuración.
+
+Usar Compose es un proceso de tres pasos:
+
+. Definir el entorno de la aplicación con Dockerfiles.
+. Definir los servicios en el archivo *docker-compose.yml* .
+. Ejecutar el comando 'docker compose up'.
+
+Para nuestro ejemplo con JumpTheQueue, definir los servicios es muy sencillo:
+[source, yaml]
+----
+version: '3'
+
+services:
+  backend:
+    build: './java/jtqj'
+    ports: 
+      - '8081:8081'
+  frontend:
+    build: './angular'
+    ports: 
+      - '4200:80'
+----
+
+Como podemos apreciar, lo único que resaltamos en este caso es el directorio desde donde queremos que se construya cada servicio (que debería apuntar a la raíz de cada proyecto), y los puertos que queremos publicar.
+Una vez tenemos este código guardado en el docker-compose.yml, simplemente ejecutamos el comando:
+[source, sh]
+----
+docker compose up
+----
+
+Y esto levantará ambos contenedores a la vez, desplegando así la aplicación entera en un paso. 
+
+Si observamos en Docker Desktop, nos aparecerá un grupo con ambos contenedores.
+[#img-dockerCompose]
+.Contenedores de JumpTheQueue levantados con Docker Compose
+image::dockerDesktopDockerCompose.png[]
+
+[[anchor-8]]
+6. Crear un entorno de CI/CD utilizando Jenkins, SonarQube y GitHub
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+La *CI/CD* es un método para distribuir las aplicaciones a los clientes con frecuencia mediante el uso de la automatización en las etapas del desarrollo de aplicaciones. Los conceptos principales que se le atribuyen son:
+
+- Integración continua ('Continuous Integration', *CI*) ->  proceso de automatización para los desarrolladores, implica diseñar, probar y combinar los cambios nuevos en el código de la aplicación con regularidad en un repositorio compartido.
+- Distribución continua ('Continuous Delivery', *CD*) -> proceso en el cual los cambios que implementa un desarrollador en una aplicación se someten a pruebas automáticas de errores y se cargan en un repositorio (como GitHub o un registro de contenedores) para que el equipo de operaciones pueda implementarlos en un entorno de producción en vivo.
+- Implementación continua ('Continuous Deployment', *CD*) -> lanzamiento automático de los cambios que implementa el desarrollador desde el repositorio hasta la producción, para ponerlos a disposición de los clientes.
+
+Para simular un entorno de CI/CD, vamos a realizar los siguientes pasos:
+
+. Subir nuestro JumpTheQueue a un servicio web de repositorios como GitHub.
+. Crear una 'bridge network' para comunicación entre contenedores.
+. Crear en Docker una imagen de Jenkins y subirla a un contenedor dentro de la nuestra network.
+. Configurar una 'multibranch pipeline' en Jenkins.
+. Clonar una imagen de SonarQube de su repositorio de imagenes y usarla en nuestra network de Docker.
+. Configurar Jenkins para que utilice nuestro contenedor de SonarQube y analice nuestro JumpTheQueue cada vez que se realiza una Pull Request.
+
+[[anchor-9]]
+6.1 Repositorio de JumpTheQueue en GitHub
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GitHub es una plataforma de desarrollo colaborativo dedicada a alojar proyectos usando el sistema de control de versiones Git. Alojaremos nuestro JumpTheQueue en GitHub para tenerlo preparado para la pipeline de CI/CD. Podemos acceder a GitHub en el siguiente enlace: https://github.com/ .
+
+Una vez tengamos un perfil creado, podemos crear un repositorio pinchando en el botón de New en la parte superior izquierda:
+[#img-githubNew]
+.Botón New para crear un nuevo repositorio en GitHub
+image::githubNew.png[]
+
+Una vez tengamos el nombre y la descripción, podemos elegir entre crear el repositorio público o privado. La diferencia es que siendo público, todo el mundo puede ver el repositorio y puede realizar un *fork*, que no es más que realizar una copia del repositorio para poder modificarlo sin alterar el original. Cuando un repositorio es privado, únicamente aquellos que tengan permisos pueden ver el repositorio. Para que otros usuarios puedan realizar commits en él, sea público o privado, debes gestionar los permisos.
+
+Una vez tengamos creado el repositorio en GitHub, abrimos una terminal en la raíz de nuestro proyecto y ejecutamos los siguientes comandos, que inicializan el repositorio de Git, añaden todos los archivos al stage y los confirma en el primer commit:
+[source, sh]
+----
+git init -b main
+git add .
+git commit -m "First commit"
+----
+
+WARNING: Lo más seguro es que Git avise en este punto de que hay un subrepositorio en el recién inicializado. Esto es porque Angular inicializa un proyecto de Git cuando se crea un proyecto nuevo. Para que no haya ningún tipo de problema, si aparece este warning, elimina la carpeta .git del proyecto de Angular antes de ejecutar el 'git add .' .
+
+Ahora en nuestro repositorio creado en GitHub copiamos la URL HTTPS que nos proporciona para clonar el repositorio (el formato será https://github.com/{ownerName}/{projectName}.git), y ejecutamos los siguientes comandos:
+[source, sh]
+----
+git remote add origin https://github.com/{ownerName}/{projectName}.git
+git remote -v
+git push origin main
+----
+
+Ahora deberíamos tener en nuestro GitHub una estructura similar a la siguiente:
+[#img-githubFirstCommit]
+.Repositorio de GitHub en su estado inicial
+image::githubFirstCommit.png[]
+
+
+[[anchor-10]]
+6.2 Creación de una 'bridge network' en Docker
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Una '*bridge network*' permite comunicarse a los contenedores que están conectados a ella, gracias a un puente de comunicación creado por software. El controlador de puentes de Docker instala automáticamente reglas en la máquina 'host' para que los contenedores que están en distintas 'bridge network' no se puedan comunicar.
+
+Por defecto, los contenedores se lanzan en la red 'default-bridge', pero las definidas por usuario tienen varias ventajas como resolución automática de DNS entre contenedores, mejor aislamiento, acople y desacople inmediato de contenedores, puentes configurables, compartición de variables de entorno, entre otras cosas.
+
+Para crear una 'bridge network', es tan sencillo como ejecutar el comando
+[source, sh]
+----
+docker network create jenkins
+----
+, pudiendo sustituir 'jenkins' por el nombre que le quieras dar a la red.
+
+[[anchor-11]]
+6.3 Creación de una imagen de Jenkins y configuración
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+*Jenkins* es un servidor 'open source' para la integración continua, utilizada para compilar y probar proyectos de software, facilitando así el proceso de integración de cambios y entrega de versiones. Mediante plugins, facilita además otras partes del ciclo de vida del desarrollo, tales como la compilación, la documentación, el testeo o el despliegue.
+
+Para crear la imagen de Jenkins, seguiremos los pasos que propone la propia wiki que ofrecen los desarrolladores. En primer lugar lanzaremos una imagen de Docker para crear una instalación tipo "Docker in Docker" (*dind*):
+[source, sh]
+----
+docker run --name jenkins-docker --rm --detach ^
+  --privileged --network jenkins --network-alias docker ^
+  --env DOCKER_TLS_CERTDIR=/certs ^
+  --volume jenkins-docker-certs:/certs/client ^
+  --volume jenkins-data:/var/jenkins_home ^
+  --publish 2376:2376 ^
+  docker:dind
+----
+
+Ahora customizaremos una imagen de Jenkins de su repositorio público en dos pasos:
+
+1. Creamos el siguiente Dockerfile:
+
+  FROM jenkins/jenkins:2.319.3-jdk11
+  USER root
+  RUN apt-get update && apt-get install -y lsb-release
+  RUN curl -fsSLo /usr/share/keyrings/docker-archive-keyring.asc \
+    https://download.docker.com/linux/debian/gpg
+  RUN echo "deb [arch=$(dpkg --print-architecture) \
+    signed-by=/usr/share/keyrings/docker-archive-keyring.asc] \
+    https://download.docker.com/linux/debian \
+    $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+  RUN apt-get update && apt-get install -y docker-ce-cli
+  USER jenkins
+  RUN jenkins-plugin-cli --plugins "blueocean:1.25.2 docker-workflow:1.28"
+
+2. Construimos una nueva imagen a partir de este Dockerfile y le damos un nombre significativo:
+
+  docker build -t myjenkins-blueocean:2.319.3-1 .
+
+Finalmente ejecutamos la imagen en un contenedor con el siguiente 'docker run':
+[source, sh]
+----
+docker run --name jenkins-blueocean --rm --detach ^
+  --network jenkins --env DOCKER_HOST=tcp://docker:2376 ^
+  --env DOCKER_CERT_PATH=/certs/client --env DOCKER_TLS_VERIFY=1 ^
+  --volume jenkins-data:/var/jenkins_home ^
+  --volume jenkins-docker-certs:/certs/client:ro ^
+  --publish 8080:8080 --publish 50000:50000 myjenkins-blueocean:2.319.3-1
+----
+
+Se puede apreciar que al comando le estamos pasando la flag '--network', mediante la cual estamos conectando este contenedor a la 'bridge network' que hemos creado en el apartado anterior.
+
+Si todo ha funcionado correctamente, en cualquier navegador podemos acceder a nuestra instalación de Jenkins con la URL http://localhost:8080 .
+
+Para obtener la contraseña de administrador, necesaria para hacer las configuraciones iniciales, podemos consultar el output de la terminal del contenedor en el propio Docker Desktop.
+
+Una vez realizadas las configuraciones iniciales (se puede seguir la wiki de Jenkins para Windows en https://www.jenkins.io/doc/book/installing/docker/), pasaremos a instalar los siguientes plug-ins, necesarios para nuestro entorno:
+
+- GitHub Plugin
+- Maven Integration Plugin
+- Nexus Platform Plugin
+- Nexus Artifact Uploader
+- NodeJS Plugin
+- SonarQube Scanner for Jenkins
+
+[[anchor-99]]
+8. Bibliografía
+~~~~~~~~~~~~~~~
+ - Página principal de DevonFW: https://devonfw.com
+ - Wiki de JumpTheQueue: https://github.com/devonfw/jump-the-queue/wiki
+ - Página de Spring Boot: https://spring.io/projects/spring-boot
+ - ¿Qué es Nginx y cómo funciona?: https://kinsta.com/es/base-de-conocimiento/que-es-nginx/
+ - Página principal de Angular: https://angular.io/
+ - Artículo de Wikipedia sobre Docker, a fecha de 23 de febrero de 2022: https://en.wikipedia.org/wiki/Docker_(software)
+ - Docker, Qué es y sus principales características.: https://openwebinars.net/blog/docker-que-es-sus-principales-caracteristicas/
+ - Dockerfile reference: https://docs.docker.com/engine/reference/builder/
+ - Common Directives in Dockerfiles: https://subscription.packtpub.com/book/cloud_and_networking/9781838983444/2/ch02lvl1sec12/common-directives-in-dockerfiles
+ - Overview of Docker Compose: https://docs.docker.com/compose/
+ - ¿Qué son la integración y distribución continuas (CI/CD)? https://www.redhat.com/es/topics/devops/what-is-ci-cd
+ - Artículo de Wikipedia sobre GitHub, a fecha de 25 de febrero de 2022: https://es.wikipedia.org/wiki/GitHub
+ - Adding an existing project to GitHub using the command Line: https://docs.github.com/en/get-started/importing-your-projects-to-github/importing-source-code-to-github/adding-an-existing-project-to-github-using-the-command-line
+ - Use bridge networks: https://docs.docker.com/network/bridge/
+ - ¿Qué es Jenkins?: https://sentrio.io/blog/que-es-jenkins/
